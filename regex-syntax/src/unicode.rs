@@ -159,6 +159,19 @@ impl SimpleCaseFolder {
         }
     }
 
+    /// The nontrivial fold mappings whose keys lie in the inclusive range.
+    pub(crate) fn mappings_in(
+        &self,
+        start: char,
+        end: char,
+    ) -> impl Iterator<Item = &'static [char]> + '_ {
+        let first = self.table.partition_point(|&(key, _)| key < start);
+        self.table[first..]
+            .iter()
+            .take_while(move |&&(key, _)| key <= end)
+            .map(|&(_, values)| values)
+    }
+
     /// Returns true if and only if the given range overlaps with any region
     /// of the underlying case folding table. That is, when true, there exists
     /// at least one codepoint in the inclusive range `[start, end]` that has
